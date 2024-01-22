@@ -4,6 +4,13 @@ import (
 	"container/list"
 )
 
+/* Questions/Notes:
+- Each session can have child sessions
+- Commiting changes in the child session
+  should persist those changes to the main map
+	and the parent session
+*/
+
 // Type assertions are used because the list.List.Value
 // stores pointers to any type, type casting tells it
 // what is the stored type (or the type pointed to by the
