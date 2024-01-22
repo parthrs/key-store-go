@@ -137,6 +137,17 @@ func (Store *Store[K, V]) Commit() {
 	for key, val := range Store.Session {
 		Store.Map[key] = val
 	}
+
+	// The changes in the current session should also persist
+	// to parent session
+	if parent := Store.Sessions.Front(); parent != nil {
+		s := KV[K, V]{}
+		for key, val := range Store.Session {
+			s[key] = val
+		}
+		Store.Sessions.Remove(parent)
+		Store.Sessions.PushFront(s)
+	}
 }
 
 // Set sets a particular key to a value
