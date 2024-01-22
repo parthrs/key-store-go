@@ -9,6 +9,23 @@ import (
 - Commiting changes in the child session
   should persist those changes to the main map
 	and the parent session
+- An important note: Commit writes to the main and parent session.
+		A commit from child will write to parent session and main map.
+		But if parent session does not commit, grandparent session will
+		not know about it because its fork of the main map won't have
+		the change.
+		e.g.
+  - BEGIN (Session 1) (Grandparent session)
+	- SET A 2
+	- BEGIN (Session 2) (Parent session)
+	- SET A 3
+	- BEGIN (Session 3) (Child session)
+	- COMMIT (Commits to parent session and main map)
+	- END
+	- GET A (Session 2) yields 3
+	- COMMIT (Session 1) (This ensures grandparent session gets the change)
+	- END
+	- GET A (Session 1) yields 3 if commit on L26 otherwise blank
 */
 
 // Type assertions are used because the list.List.Value
@@ -23,9 +40,9 @@ type KV[K comparable, V any] map[K]V
 // Store is the Key Value store that offers
 // transactional capabilities
 type Store[K comparable, V any] struct {
-	Map      KV[K, V]
-	Sessions list.List
-	Session  KV[K, V]
+	Map      KV[K, V]  // Global map
+	Sessions list.List // Stack of all sessions
+	Session  KV[K, V]  // Current session
 }
 
 // NewStore returns a new Store
