@@ -13,3 +13,32 @@ END	Ends a transaction. Everything done within the "active" transaction is lost.
 ROLLBACK	Throws away changes made within the context of the active transaction. If no transaction is active, prints "No Active Transaction".
 COMMIT	Commits the changes made within the context of the active transaction and ends the active transaction.
 ```
+
+#### Build
+`go build .`
+
+#### Running
+`./key-store-go`
+
+*NOTE*: All commands are to be upper case
+
+```
+> BEGIN
+> SET A 1
+> SET B 2
+> BEGIN
+> GET A
+1
+> SET B 20
+> SET C 3
+> COMMIT
+> END
+> GET B
+20
+> GET A
+1
+> GET C
+3
+> END
+> EXIT
+```
